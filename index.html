@@ -1,513 +1,86 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Solid Earth Article Monitor — GRL</title>
-<style>
-  :root {
-    --bg: #fafafa;
-    --surface: #ffffff;
-    --border: #e0e0e0;
-    --text: #222;
-    --text-secondary: #555;
-    --accent: #1a5f8a;
-    --accent-light: #e8f0f6;
-    --tag-seismology: #2563eb;
-    --tag-fault: #c2410c;
-    --tag-crustal: #7c3aed;
-    --gold: #b8860b;
-    --gold-bg: #fffdf5;
-    --radius: 6px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-  }
-  .container { max-width: 920px; margin: 0 auto; padding: 24px 20px; }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GRL Solid Earth Reports</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Geophysical Research Letters</p>
+        <h1>Solid Earth Article Brief</h1>
+      </div>
+      <a class="source-link" href="https://agupubs.onlinelibrary.wiley.com/toc/19448007/current" target="_blank" rel="noreferrer">
+        Current GRL Issue
+      </a>
+    </header>
 
-  /* Header */
-  .header {
-    border-bottom: 2px solid var(--accent);
-    padding-bottom: 20px;
-    margin-bottom: 32px;
-  }
-  .header h1 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: -0.02em;
-  }
-  .header .subtitle {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    margin-top: 4px;
-  }
+    <main>
+      <section class="search-section" aria-labelledby="search-title">
+        <div class="section-title-row">
+          <div>
+            <p class="section-kicker">Search</p>
+            <h2 id="search-title">Search Articles</h2>
+          </div>
+          <span id="search-count" class="small-note"></span>
+        </div>
 
-  /* Interest tags bar */
-  .tag-bar {
-    display: flex;
-    gap: 10px;
-    margin: 24px 0;
-    flex-wrap: wrap;
-  }
-  .tag-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    color: var(--text-secondary);
-    transition: all 0.2s;
-    user-select: none;
-  }
-  .tag-chip:hover { border-color: var(--accent); color: var(--accent); }
-  .tag-chip.active { color: #fff; border-color: transparent; }
-  .tag-chip.tag-seismology.active { background: var(--tag-seismology); }
-  .tag-chip.tag-fault.active { background: var(--tag-fault); }
-  .tag-chip.tag-crustal.active { background: var(--tag-crustal); }
-  .tag-chip .count { font-weight: 400; opacity: 0.8; }
-  .tag-chip .badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    font-size: 0.7rem;
-    font-weight: 700;
-  }
-  .tag-chip.tag-seismology .badge { color: var(--tag-seismology); }
-  .tag-chip.tag-fault .badge { color: var(--tag-fault); }
-  .tag-chip.tag-crustal .badge { color: var(--tag-crustal); }
-  .tag-chip.active .badge { color: #fff; }
-  .tag-clear {
-    font-size: 0.78rem;
-    color: var(--accent);
-    cursor: pointer;
-    padding: 6px 8px;
-    background: none;
-    border: none;
-    display: none;
-    font-weight: 500;
-  }
-  .tag-clear.visible { display: inline; }
+        <div class="controls" aria-label="Search recorded articles">
+          <label class="search-box">
+            <span>Keyword</span>
+            <input id="search-input" type="search" placeholder="Title, author, method, region, key point" />
+          </label>
+          <div id="interest-filters" class="interest-filters" aria-label="Interest keyword filter"></div>
+        </div>
 
-  /* Search */
-  .search-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    margin-bottom: 32px;
-    box-shadow: var(--shadow);
-  }
-  .search-section h2 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: var(--text);
-  }
-  .search-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .search-input {
-    flex: 1;
-    min-width: 240px;
-    padding: 9px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.92rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .search-input:focus { border-color: var(--accent); }
-  .search-placeholder {
-    text-align: center;
-    color: #999;
-    padding: 32px 0;
-    font-size: 0.92rem;
-  }
-  .search-results { margin-top: 16px; }
-  .search-result-count {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
-  }
+        <div id="search-results" class="article-list compact-list"></div>
+      </section>
 
-  /* Latest Issue section */
-  .section-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: var(--accent);
-  }
-  .section-subtitle {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    margin-bottom: 20px;
-  }
+      <section class="latest-section" aria-labelledby="latest-title">
+        <div class="latest-head">
+          <div>
+            <p class="section-kicker">Latest Issue</p>
+            <h2 id="latest-title"></h2>
+            <p id="latest-meta" class="meta-line"></p>
+          </div>
+          <div id="latest-count" class="count-box"></div>
+        </div>
 
-  /* Recommended card */
-  .recommended-card {
-    background: var(--gold-bg);
-    border: 1.5px solid var(--gold);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  }
-  .recommended-label {
-    display: inline-block;
-    background: var(--gold);
-    color: #fff;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .recommended-card .rec-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1.5;
-  }
-  .recommended-card .rec-title a { color: inherit; text-decoration: none; }
-  .recommended-card .rec-title a:hover { text-decoration: underline; color: var(--accent); }
-  .recommended-card .rec-meta {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin: 8px 0;
-  }
-  .recommended-card .rec-text {
-    font-size: 0.92rem;
-    color: var(--text-secondary);
-    margin-top: 8px;
-    line-height: 1.7;
-  }
+        <div id="latest-summary" class="summary-grid"></div>
+        <div id="latest-list" class="article-list"></div>
+      </section>
 
-  /* Article cards */
-  .article-list { display: flex; flex-direction: column; gap: 14px; }
-  .article-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 22px;
-    box-shadow: var(--shadow);
-    transition: box-shadow 0.2s;
-  }
-  .article-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  .article-card .art-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.5;
-  }
-  .article-card .art-title a { color: inherit; text-decoration: none; }
-  .article-card .art-title a:hover { text-decoration: underline; color: var(--accent); }
-  .article-card .art-meta {
-    font-size: 0.82rem;
-    color: var(--text-secondary);
-    margin: 6px 0 8px;
-    line-height: 1.5;
-  }
-  .article-card .art-meta strong { color: var(--text); font-weight: 600; }
-  .article-card .art-tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-  }
-  .art-tag {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: #fff;
-    letter-spacing: 0.02em;
-  }
-  .art-tag.s { background: var(--tag-seismology); }
-  .art-tag.f { background: var(--tag-fault); }
-  .art-tag.c { background: var(--tag-crustal); }
+      <section class="archive-section" aria-labelledby="archive-title">
+        <div class="section-title-row">
+          <div>
+            <p class="section-kicker">Archive</p>
+            <h2 id="archive-title">Previous Reports</h2>
+          </div>
+          <span id="archive-count" class="small-note"></span>
+        </div>
+        <div id="archive-list" class="archive-list"></div>
+      </section>
 
-  .article-card .keypoints { list-style: none; }
-  .article-card .keypoints li {
-    font-size: 0.87rem;
-    color: var(--text-secondary);
-    padding: 3px 0 3px 18px;
-    position: relative;
-    line-height: 1.6;
-  }
-  .article-card .keypoints li::before {
-    content: "•";
-    position: absolute;
-    left: 2px;
-    color: var(--accent);
-    font-weight: 700;
-  }
+      <section id="report-detail" class="detail-section" aria-labelledby="detail-title" hidden>
+        <div class="detail-head">
+          <div>
+            <p class="section-kicker">Report Detail</p>
+            <h2 id="detail-title"></h2>
+            <p id="detail-meta" class="meta-line"></p>
+          </div>
+          <div class="detail-actions">
+            <a id="detail-source" class="article-link" href="#" target="_blank" rel="noreferrer">Issue Page</a>
+            <a class="article-link" href="#archive-title">Back</a>
+          </div>
+        </div>
 
-  .article-card .art-links {
-    margin-top: 10px;
-    display: flex;
-    gap: 14px;
-  }
-  .art-links a {
-    font-size: 0.82rem;
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: 500;
-  }
-  .art-links a:hover { text-decoration: underline; }
+        <div id="detail-summary" class="summary-grid"></div>
+        <div id="detail-list" class="article-list"></div>
+      </section>
+    </main>
 
-  /* Footer */
-  .footer {
-    text-align: center;
-    color: #999;
-    font-size: 0.78rem;
-    padding: 32px 0 16px;
-    border-top: 1px solid var(--border);
-    margin-top: 40px;
-  }
-
-  /* No results */
-  .no-results {
-    text-align: center;
-    color: #999;
-    padding: 24px 0;
-    font-size: 0.92rem;
-  }
-
-  @media (max-width: 600px) {
-    .container { padding: 16px 12px; }
-    .article-card { padding: 14px 16px; }
-    .recommended-card { padding: 16px 18px; }
-  }
-</style>
-</head>
-<body>
-<div class="container">
-
-  <!-- Header -->
-  <div class="header">
-    <h1>Solid Earth Article Monitor</h1>
-    <div class="subtitle">Curated brief from Geophysical Research Letters</div>
-  </div>
-
-  <!-- Interest keywords bar -->
-  <div class="tag-bar" id="tagBar">
-    <span class="tag-chip tag-seismology" data-tag="Seismology">
-      Seismology <span class="badge">S</span>
-    </span>
-    <span class="tag-chip tag-fault" data-tag="Fault Damage Zone">
-      Fault Damage Zone <span class="badge">F</span>
-    </span>
-    <span class="tag-chip tag-crustal" data-tag="Crustal Deformation">
-      Crustal Deformation <span class="badge">C</span>
-    </span>
-    <button class="tag-clear" id="tagClear" onclick="clearTagFilter()">Clear filter</button>
-  </div>
-
-  <!-- Search Section -->
-  <div class="search-section" id="searchSection">
-    <h2>Search Articles</h2>
-    <div class="search-row">
-      <input type="text" class="search-input" id="searchInput"
-             placeholder="Search by title, author, region, method, or keyword..."
-             oninput="doSearch()">
-    </div>
-    <div class="search-results" id="searchResults">
-      <div class="search-placeholder">Enter a keyword or select an interest tag above to search.</div>
-    </div>
-  </div>
-
-  <!-- Latest Issue Section -->
-  <div id="latestIssue">
-    <div class="section-title" id="issueTitle"></div>
-    <div class="section-subtitle" id="issueSubtitle"></div>
-    <div id="recommended"></div>
-    <div class="article-list" id="articleList"></div>
-  </div>
-
-  <div class="footer">
-    Data from Crossref via AGU/Wiley. Key Points derived from verified abstract metadata.
-  </div>
-</div>
-
-<script src="app.js"></script>
-<script>
-(function() {
-  const report = reports[0];
-  const articles = report.articles;
-  let activeTag = null;
-
-  // Tag colors
-  const tagClass = {
-    'Seismology': 's',
-    'Fault Damage Zone': 'f',
-    'Crustal Deformation': 'c'
-  };
-
-  // --- Issue header ---
-  document.getElementById('issueTitle').textContent = 'Latest Issue — ' + report.issue;
-  document.getElementById('issueSubtitle').textContent =
-    report.source + ' · ' + articles.length + ' solid Earth articles curated';
-
-  // --- Most Recommended ---
-  const rec = report.recommendation;
-  const recArticle = articles.find(a => a.title === rec.title);
-  let recHTML = '<div class="recommended-card">';
-  recHTML += '<div class="recommended-label">' + rec.label + '</div>';
-  recHTML += '<div class="rec-title">';
-  if (recArticle) {
-    recHTML += '<a href="' + recArticle.link + '" target="_blank" rel="noopener">' + rec.title + '</a>';
-  } else {
-    recHTML += rec.title;
-  }
-  recHTML += '</div>';
-  if (recArticle) {
-    recHTML += '<div class="rec-meta">' +
-      '<strong>Authors:</strong> ' + recArticle.authors + '<br>' +
-      '<strong>Topic:</strong> ' + recArticle.topic + ' &middot; ' +
-      '<strong>Region:</strong> ' + recArticle.region + ' &middot; ' +
-      '<strong>Method:</strong> ' + recArticle.method +
-      '</div>';
-  }
-  recHTML += '<div class="rec-text">' + rec.text + '</div>';
-
-  // Build tag chips
-  let tagChips = '';
-  recArticle.interestTags.forEach(t => {
-    tagChips += '<span class="art-tag ' + (tagClass[t] || '') + '">' + t + '</span>';
-  });
-  if (tagChips) recHTML += '<div class="art-tags" style="margin-top:10px">' + tagChips + '</div>';
-
-  if (recArticle) {
-    recHTML += '<div class="art-links" style="margin-top:12px">' +
-      '<a href="' + recArticle.link + '" target="_blank" rel="noopener">Article Page</a>' +
-      '<a href="' + recArticle.link.replace('/doi/', '/doi/pdf/') + '" target="_blank" rel="noopener">PDF</a>' +
-      '</div>';
-  }
-  recHTML += '</div>';
-  document.getElementById('recommended').innerHTML = recHTML;
-
-  // --- Render article card ---
-  function renderArticle(art) {
-    let tagsHTML = '';
-    art.interestTags.forEach(t => {
-      tagsHTML += '<span class="art-tag ' + (tagClass[t] || '') + '">' + t + '</span>';
-    });
-
-    let kpHTML = '';
-    art.keyPoints.forEach(kp => {
-      kpHTML += '<li>' + kp + '</li>';
-    });
-
-    return '<div class="article-card">' +
-      '<div class="art-tags">' + tagsHTML + '</div>' +
-      '<div class="art-title"><a href="' + art.link + '" target="_blank" rel="noopener">' + art.title + '</a></div>' +
-      '<div class="art-meta">' +
-        '<strong>Authors:</strong> ' + art.authors + '<br>' +
-        '<strong>Topic:</strong> ' + art.topic + ' &middot; ' +
-        '<strong>Region:</strong> ' + art.region + ' &middot; ' +
-        '<strong>Method:</strong> ' + art.method +
-      '</div>' +
-      '<ul class="keypoints">' + kpHTML + '</ul>' +
-      '<div class="art-links">' +
-        '<a href="' + art.link + '" target="_blank" rel="noopener">Article Page</a>' +
-        '<a href="' + art.link.replace('/doi/', '/doi/pdf/') + '" target="_blank" rel="noopener">PDF</a>' +
-      '</div>' +
-      '</div>';
-  }
-
-  // --- Render latest issue (except recommended) ---
-  function renderLatestIssue() {
-    const list = document.getElementById('articleList');
-    const others = articles.filter(a => a.title !== rec.title);
-    let html = '';
-    others.forEach(art => { html += renderArticle(art); });
-    list.innerHTML = html;
-  }
-
-  // --- Search ---
-  window.doSearch = function() {
-    const q = document.getElementById('searchInput').value.toLowerCase().trim();
-    const container = document.getElementById('searchResults');
-
-    if (!q && !activeTag) {
-      container.innerHTML = '<div class="search-placeholder">Enter a keyword or select an interest tag above to search.</div>';
-      return;
-    }
-
-    let results = articles;
-    if (activeTag) {
-      results = results.filter(a => a.interestTags.includes(activeTag));
-    }
-    if (q) {
-      results = results.filter(a => {
-        const haystack = (a.title + '|' + a.authors + '|' + a.region + '|' + a.method + '|' +
-                          a.topic + '|' + a.interestTags.join(',') + '|' +
-                          a.keyPoints.join(' ')).toLowerCase();
-        return haystack.includes(q);
-      });
-    }
-
-    if (results.length === 0) {
-      container.innerHTML = '<div class="search-result-count"></div><div class="no-results">No articles match your search.</div>';
-    } else {
-      let html = '<div class="search-result-count">' + results.length + ' article' +
-        (results.length !== 1 ? 's' : '') + ' found</div>';
-      results.forEach(art => { html += renderArticle(art); });
-      container.innerHTML = html;
-    }
-  };
-
-  // --- Tag filtering ---
-  function setActiveTag(tag) {
-    activeTag = tag;
-    document.querySelectorAll('.tag-chip').forEach(chip => {
-      chip.classList.toggle('active', chip.dataset.tag === tag);
-    });
-    document.getElementById('tagClear').classList.toggle('visible', !!tag);
-    document.getElementById('searchInput').value = '';
-    doSearch();
-  }
-
-  window.clearTagFilter = function() {
-    setActiveTag(null);
-    document.getElementById('searchInput').value = '';
-    document.getElementById('searchResults').innerHTML =
-      '<div class="search-placeholder">Enter a keyword or select an interest tag above to search.</div>';
-  };
-
-  // Tag chip clicks
-  document.querySelectorAll('.tag-chip').forEach(chip => {
-    chip.addEventListener('click', function() {
-      if (activeTag === this.dataset.tag) {
-        clearTagFilter();
-      } else {
-        setActiveTag(this.dataset.tag);
-      }
-    });
-  });
-
-  // --- Init ---
-  renderLatestIssue();
-
-})();
-</script>
-</body>
+    <script src="app.js"></script>
+  </body>
 </html>
