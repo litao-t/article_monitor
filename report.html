@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Solid Earth Report Detail</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Cross-Journal Monitor</p>
+        <h1>Solid Earth Literature Brief</h1>
+      </div>
+      <a class="source-link" href="solid-earth-reporter.html#archive-title">Previous Reports</a>
+    </header>
+
+    <main>
+      <section id="report-detail" class="detail-section detail-page" aria-labelledby="detail-title" hidden>
+        <div class="detail-head">
+          <div>
+            <p class="section-kicker">Report Detail</p>
+            <h2 id="detail-title"></h2>
+            <p id="detail-meta" class="meta-line"></p>
+          </div>
+          <div class="detail-actions">
+            <a id="detail-source" class="article-link" target="_blank" rel="noreferrer" hidden>Issue Page</a>
+            <a class="article-link" href="solid-earth-reporter.html#archive-title">Back</a>
+          </div>
+        </div>
+
+        <div id="detail-summary" class="summary-grid"></div>
+        <div id="detail-list" class="article-list"></div>
+      </section>
+
+      <section id="report-missing" class="detail-section detail-page" hidden>
+        <div class="empty-state">Report not found. Return to Previous Reports and choose another issue.</div>
+      </section>
+    </main>
+
+    <script src="assets/app.js"></script>
+  </body>
+</html>
