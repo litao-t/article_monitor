@@ -8,14 +8,32 @@
   </head>
   <body>
     <header class="topbar">
-      <div>
-        <p class="eyebrow">Cross-Journal Monitor</p>
-        <h1>Solid Earth Literature Brief</h1>
+      <div class="topbar-inner">
+        <a class="site-title" href="#latest" data-section-link="latest">Solid Earth Literature Brief</a>
+        <nav class="topbar-nav" aria-label="Report sections">
+          <a href="#latest" data-section-link="latest" class="active">Latest Issue</a>
+          <a href="#search" data-section-link="search">Search Articles</a>
+          <a href="#archive" data-section-link="archive">Archive</a>
+        </nav>
       </div>
     </header>
 
     <main>
-      <section class="search-section" aria-labelledby="search-title">
+      <section id="latest" class="latest-section content-section active" aria-labelledby="latest-title">
+        <div class="latest-head">
+          <div>
+            <p class="section-kicker">Latest Issue</p>
+            <h2 id="latest-title"></h2>
+            <p id="latest-meta" class="meta-line"></p>
+          </div>
+          <div id="latest-count" class="count-box"></div>
+        </div>
+
+        <div id="latest-summary" class="summary-grid"></div>
+        <div id="latest-list" class="article-list"></div>
+      </section>
+
+      <section id="search" class="search-section content-section" aria-labelledby="search-title">
         <div class="section-title-row">
           <div>
             <p class="section-kicker">Search</p>
@@ -35,21 +53,7 @@
         <div id="search-results" class="article-list compact-list"></div>
       </section>
 
-      <section class="latest-section" aria-labelledby="latest-title">
-        <div class="latest-head">
-          <div>
-            <p class="section-kicker">Latest Issue</p>
-            <h2 id="latest-title"></h2>
-            <p id="latest-meta" class="meta-line"></p>
-          </div>
-          <div id="latest-count" class="count-box"></div>
-        </div>
-
-        <div id="latest-summary" class="summary-grid"></div>
-        <div id="latest-list" class="article-list"></div>
-      </section>
-
-      <section class="archive-section" aria-labelledby="archive-title">
+      <section id="archive" class="archive-section content-section" aria-labelledby="archive-title">
         <div class="section-title-row">
           <div>
             <p class="section-kicker">Archive</p>

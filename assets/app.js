@@ -1265,7 +1265,8 @@ const interestKeywords = [
 
 const state = {
   query: "",
-  interest: ""
+  interest: "",
+  section: "latest"
 };
 
 const latest = reports[0];
@@ -1296,8 +1297,12 @@ const el = {
   detailList: document.querySelector("#detail-list"),
   detailMissing: document.querySelector("#report-missing"),
   filters: document.querySelector("#interest-filters"),
-  search: document.querySelector("#search-input")
+  search: document.querySelector("#search-input"),
+  sectionLinks: document.querySelectorAll("[data-section-link]"),
+  sections: document.querySelectorAll(".content-section")
 };
+
+const availableSections = Array.from(el.sections).map((section) => section.id).filter(Boolean);
 
 function normalize(value) {
   return String(value || "").toLowerCase().trim();
@@ -1522,6 +1527,36 @@ function renderArchive() {
     .join("");
 }
 
+function getSectionFromHash() {
+  const hash = window.location.hash.replace("#", "");
+  return availableSections.includes(hash) ? hash : null;
+}
+
+function setActiveSection(sectionId, options = {}) {
+  if (!availableSections.length) return;
+
+  const nextSection = availableSections.includes(sectionId) ? sectionId : "latest";
+  state.section = nextSection;
+
+  el.sections.forEach((section) => {
+    section.classList.toggle("active", section.id === nextSection);
+  });
+
+  el.sectionLinks.forEach((link) => {
+    const isActive = link.dataset.sectionLink === nextSection;
+    link.classList.toggle("active", isActive);
+    if (isActive) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+
+  if (options.focusSearch && nextSection === "search" && el.search) {
+    el.search.focus({ preventScroll: true });
+  }
+}
+
 function getSelectedReport() {
   if (!window.location.hash) return null;
   const id = window.location.hash.replace("#", "");
@@ -1571,6 +1606,7 @@ function renderReportDetail() {
 
 function render() {
   validateReports();
+  setActiveSection(getSectionFromHash() || state.section);
   renderHeader();
   renderRecommendation();
   renderFilters();
@@ -1597,6 +1633,20 @@ if (el.filters) {
   });
 }
 
+if (el.sectionLinks.length && availableSections.length) {
+  el.sectionLinks.forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const sectionId = link.dataset.sectionLink;
+      if (!availableSections.includes(sectionId)) return;
+
+      event.preventDefault();
+      setActiveSection(sectionId, { focusSearch: sectionId === "search" });
+      window.history.replaceState(null, "", `#${sectionId}`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+}
+
 document.addEventListener("click", (event) => {
   const trigger = event.target.closest("[data-scroll-target]");
   if (!trigger) return;
@@ -1614,6 +1664,15 @@ document.addEventListener("click", (event) => {
   });
 });
 
-window.addEventListener("hashchange", renderReportDetail);
+window.addEventListener("hashchange", () => {
+  const sectionId = getSectionFromHash();
+  if (sectionId) {
+    setActiveSection(sectionId);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  renderReportDetail();
+});
 
 render();
